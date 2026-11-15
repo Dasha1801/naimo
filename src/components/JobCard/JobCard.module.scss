@@ -1,0 +1,40 @@
+﻿.card {
+  padding: calc(var(--spacing-unit) * 2);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  background: white;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+.company {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.salary {
+  color: var(--color-primary);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #dbeafe;
+  color: var(--color-primary);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
