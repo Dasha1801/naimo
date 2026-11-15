@@ -1,3 +1,4 @@
+import { TanstackQueryProvider } from '@/lib/providers/TanstackQueryProvider';
 import '@/styles/globals.scss';
 import type { Metadata } from 'next';
 
@@ -6,14 +7,12 @@ export const metadata: Metadata = {
   description: 'Умная платформа поиска работы с AI-агрегацией',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ru">
-      <body>{children}</body>
+      <body>
+        <TanstackQueryProvider>{children}</TanstackQueryProvider>
+      </body>
     </html>
   );
 }
