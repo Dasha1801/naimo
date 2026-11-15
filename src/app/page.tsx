@@ -10,11 +10,11 @@ export default function Home() {
   const handleSync = async () => {
     setSyncing(true);
     setMessage('');
-    
+
     try {
       const response = await fetch('/api/jobs/sync');
       const data = await response.json();
-      
+
       if (data.success) {
         setMessage(`✅ ${data.message}`);
       } else {
@@ -29,9 +29,7 @@ export default function Home() {
 
   return (
     <main style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
-        Naimo 🚀
-      </h1>
+      <h1 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>Naimo 🚀</h1>
 
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <button
@@ -50,7 +48,7 @@ export default function Home() {
         >
           {syncing ? 'Синхронизация...' : 'Синхронизировать с RemoteOK'}
         </button>
-        
+
         {message && (
           <p style={{ marginTop: '1rem', color: message.includes('✅') ? 'green' : 'red' }}>
             {message}

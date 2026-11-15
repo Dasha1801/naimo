@@ -1,7 +1,7 @@
 ﻿import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import reactPlugin from 'eslint-plugin-react';
 import nextConfig from '@next/next/recommended';
+import reactPlugin from 'eslint-plugin-react';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   js.configs.recommended,
@@ -16,5 +16,5 @@ export default tseslint.config(
   },
   {
     ignores: ['.next/', 'node_modules/'],
-  }
+  },
 );

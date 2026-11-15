@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { JobCard } from '../JobCard/JobCard';
 
-
 interface Job {
   id: string;
   title: string;
@@ -20,16 +19,20 @@ interface Job {
 async function fetchJobs(): Promise<Job[]> {
   const response = await fetch('/api/jobs');
   const data = await response.json();
-  
+
   if (!data.success) {
     throw new Error(data.error || 'Failed to fetch jobs');
   }
-  
+
   return data.data;
 }
 
 export function JobList() {
-  const { data: jobs, isLoading, error } = useQuery({
+  const {
+    data: jobs,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
   });
