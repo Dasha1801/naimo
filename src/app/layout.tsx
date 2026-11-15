@@ -1,3 +1,4 @@
+import { TanstackQueryProvider } from '@/lib/providers/TanstackQueryProvider';
 import '@/styles/globals.scss';
 import type { Metadata } from 'next';
 
@@ -13,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
-      <body>{children}</body>
+      <body>
+        <TanstackQueryProvider>{children}</TanstackQueryProvider>
+      </body>
     </html>
   );
 }
