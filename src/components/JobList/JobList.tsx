@@ -9,6 +9,7 @@ import { Wrapper } from '@/components/ui/Wrapper/Wrapper';
 interface JobListProps {
   onSync?: () => void;
   syncing?: boolean;
+  search?: string;
 }
 
 async function fetchJobs(): Promise<Job[]> {
@@ -22,7 +23,7 @@ async function fetchJobs(): Promise<Job[]> {
   return data.data;
 }
 
-export function JobList({ onSync, syncing = false }: JobListProps) {
+export function JobList({ onSync, syncing = false, search = '' }: JobListProps) {
   const {
     data: jobs,
     isLoading,
@@ -70,9 +71,24 @@ export function JobList({ onSync, syncing = false }: JobListProps) {
     );
   }
 
+  const term = search.trim().toLowerCase();
+  const filteredJobs = term
+    ? jobs.filter((job) => JSON.stringify(job).toLowerCase().includes(term))
+    : jobs;
+
+  if (!filteredJobs.length) {
+    return (
+      <QueryState
+        type="empty"
+        title="Ничего не найдено"
+        description={`По запросу «${search}» вакансии не найдены. Попробуйте изменить запрос.`}
+      />
+    );
+  }
+
   return (
     <Wrapper direction="column" gap="md">
-      {jobs.map((job) => (
+      {filteredJobs.map((job) => (
         <JobCard key={job.id} job={job} />
       ))}
     </Wrapper>

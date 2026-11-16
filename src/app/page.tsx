@@ -1,8 +1,9 @@
 'use client';
 
 import * as Toast from '@radix-ui/react-toast';
+import { TextField } from '@radix-ui/themes';
 import clsx from 'clsx';
-import { RefreshCw, X } from 'lucide-react';
+import { RefreshCw, Search, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { JobList } from '@/components/JobList/JobList';
@@ -12,6 +13,7 @@ import styles from './page.module.scss';
 
 export default function Home() {
   const [syncing, setSyncing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState({
     open: false,
     title: '',
@@ -50,10 +52,46 @@ export default function Home() {
     }
   };
 
+  const handleSearchSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+  };
+
   return (
     <Toast.Provider swipeDirection="right">
       <main className={styles.home}>
         <section>
+          <form onSubmit={handleSearchSubmit} role="search" className={styles.searchForm}>
+            <TextField.Root
+              size="3"
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Например: React, Python, дизайнер…"
+              className={styles.searchField}
+              aria-label="Поиск вакансий"
+            >
+              <TextField.Slot side="left">
+                <Search size={22} aria-hidden="true" />
+              </TextField.Slot>
+
+              {searchQuery && (
+                <TextField.Slot side="right">
+                  <button
+                    type="button"
+                    className={styles.searchClear}
+                    onClick={handleClearSearch}
+                    aria-label="Очистить поиск"
+                  >
+                    <X size={16} />
+                  </button>
+                </TextField.Slot>
+              )}
+            </TextField.Root>
+          </form>
           <Wrapper gap="md" justify="space-between" align="center" className={styles.header}>
             <h2 className={styles.heading}>Актуальные вакансии</h2>
 
@@ -72,7 +110,7 @@ export default function Home() {
             </button>
           </Wrapper>
 
-          <JobList />
+          <JobList search={searchQuery} />
         </section>
       </main>
 
