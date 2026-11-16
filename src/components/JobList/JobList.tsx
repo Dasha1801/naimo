@@ -1,73 +1,80 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { JobCard } from '../JobCard/JobCard';
 
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  salary: string | null;
-  url: string;
-  source: string;
-  publishedAt: string;
-  isRemote: boolean;
-  aiScore: number | null;
-  aiSummary: string | null;
+import { JobCard, type Job } from '@/components/JobCard/JobCard';
+import { QueryState } from '@/components/ui/QueryState/QueryState';
+import { Wrapper } from '@/components/ui/Wrapper/Wrapper';
+
+interface JobListProps {
+  onSync?: () => void;
+  syncing?: boolean;
 }
 
 async function fetchJobs(): Promise<Job[]> {
   const response = await fetch('/api/jobs');
   const data = await response.json();
 
-  if (!data.success) {
-    throw new Error(data.error || 'Failed to fetch jobs');
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || 'Не удалось загрузить вакансии');
   }
 
   return data.data;
 }
 
-export function JobList() {
+export function JobList({ onSync, syncing = false }: JobListProps) {
   const {
     data: jobs,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: ['jobs'],
     queryFn: fetchJobs,
   });
 
   if (isLoading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Загрузка вакансий...</div>;
+    return <QueryState type="loading" />;
   }
 
   if (error) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
-        Ошибка: {error.message}
-      </div>
+      <QueryState
+        type="error"
+        title="Не удалось загрузить вакансии"
+        description={error.message}
+        action={{
+          label: 'Попробовать снова',
+          onClick: () => refetch(),
+        }}
+      />
     );
   }
 
-  if (!jobs || jobs.length === 0) {
+  if (!jobs?.length) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-muted)' }}>
-        Вакансий пока нет. Нажмите "Синхронизировать" для загрузки данных.
-      </div>
+      <QueryState
+        type="empty"
+        title="Пока нет вакансий"
+        description="Здесь появятся актуальные предложения от работодателей. Синхронизируйте вакансии, чтобы начать поиск."
+        action={
+          onSync
+            ? {
+                label: 'Загрузить вакансии',
+                onClick: onSync,
+                loading: syncing,
+              }
+            : undefined
+        }
+      />
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <Wrapper direction="column" gap="md">
       {jobs.map((job) => (
-        <JobCard
-          key={job.id}
-          title={job.title}
-          company={job.company}
-          salary={job.salary || undefined}
-          remote={job.isRemote}
-        />
+        <JobCard key={job.id} job={job} />
       ))}
-    </div>
+    </Wrapper>
   );
 }

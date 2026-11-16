@@ -1,63 +1,104 @@
 'use client';
 
-import { JobList } from '@/components/JobList/JobList';
+import * as Toast from '@radix-ui/react-toast';
+import clsx from 'clsx';
+import { RefreshCw, X } from 'lucide-react';
 import { useState } from 'react';
+
+import { JobList } from '@/components/JobList/JobList';
+
+import { Wrapper } from '@/components/ui/Wrapper/Wrapper';
+import styles from './page.module.scss';
 
 export default function Home() {
   const [syncing, setSyncing] = useState(false);
-  const [message, setMessage] = useState('');
+  const [toast, setToast] = useState({
+    open: false,
+    title: '',
+    description: '',
+    variant: 'success' as 'success' | 'error',
+  });
 
   const handleSync = async () => {
+    if (syncing) return;
+
     setSyncing(true);
-    setMessage('');
 
     try {
       const response = await fetch('/api/jobs/sync');
       const data = await response.json();
 
-      if (data.success) {
-        setMessage(`✅ ${data.message}`);
-      } else {
-        setMessage(`❌ Ошибка: ${data.error}`);
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Не удалось синхронизировать вакансии');
       }
+
+      setToast({
+        open: true,
+        title: 'Синхронизация завершена',
+        description: data.message,
+        variant: 'success',
+      });
     } catch (error) {
-      setMessage('❌ Ошибка соединения');
+      setToast({
+        open: true,
+        title: 'Ошибка синхронизации',
+        description: error instanceof Error ? error.message : 'Ошибка соединения',
+        variant: 'error',
+      });
     } finally {
       setSyncing(false);
     }
   };
 
   return (
-    <main style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>Naimo 🚀</h1>
+    <Toast.Provider swipeDirection="right">
+      <main className={styles.home}>
+        <section>
+          <Wrapper gap="md" justify="space-between" align="center" className={styles.header}>
+            <h2 className={styles.heading}>Актуальные вакансии</h2>
 
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <button
-          onClick={handleSync}
-          disabled={syncing}
-          style={{
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: 'var(--color-primary)',
-            color: 'white',
-            border: 'none',
-            borderRadius: 'var(--radius-md)',
-            cursor: syncing ? 'not-allowed' : 'pointer',
-            opacity: syncing ? 0.7 : 1,
-          }}
-        >
-          {syncing ? 'Синхронизация...' : 'Синхронизировать с RemoteOK'}
-        </button>
+            <button
+              type="button"
+              className={styles.syncButton}
+              onClick={handleSync}
+              disabled={syncing}
+              aria-label="Синхронизировать вакансии с RemoteOK"
+              title="Синхронизировать с RemoteOK"
+            >
+              <RefreshCw
+                size={20}
+                className={clsx(styles.syncIcon, syncing && styles.syncIconLoading)}
+              />
+            </button>
+          </Wrapper>
 
-        {message && (
-          <p style={{ marginTop: '1rem', color: message.includes('✅') ? 'green' : 'red' }}>
-            {message}
-          </p>
+          <JobList />
+        </section>
+      </main>
+
+      <Toast.Root
+        open={toast.open}
+        onOpenChange={(open) => setToast((current) => ({ ...current, open }))}
+        duration={5000}
+        className={clsx(
+          styles.toast,
+          toast.variant === 'success' ? styles.toastSuccess : styles.toastError,
         )}
-      </div>
+      >
+        <div className={styles.toastContent}>
+          <Toast.Title className={styles.toastTitle}>{toast.title}</Toast.Title>
 
-      <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Актуальные вакансии</h2>
-      <JobList />
-    </main>
+          <Toast.Description className={styles.toastDescription}>
+            {toast.description}
+          </Toast.Description>
+        </div>
+
+        <Toast.Close className={styles.toastClose} aria-label="Закрыть уведомление">
+          <X size={18} />
+        </Toast.Close>
+      </Toast.Root>
+
+      <Toast.Viewport className={styles.toastViewport} />
+    </Toast.Provider>
   );
 }
