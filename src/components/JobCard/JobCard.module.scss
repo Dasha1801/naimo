@@ -155,24 +155,9 @@
   text-transform: uppercase;
 }
 
-.sourceHh {
-  background: var(--color-source-hh-bg);
-  color: var(--color-source-hh-text);
-}
-
 .sourceRemoteok {
   background: var(--color-source-remoteok-bg);
   color: var(--color-source-remoteok-text);
-}
-
-.sourceLinkedin {
-  background: var(--color-source-linkedin-bg);
-  color: var(--color-source-linkedin-text);
-}
-
-.sourceTest {
-  background: var(--color-source-default-bg);
-  color: var(--color-source-default-text);
 }
 
 .sourceDefault {
@@ -250,6 +235,55 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.location,
+.level {
+  font-size: var(--font-size-sm);
+  color: var(--color-muted-light);
+}
+
+.excerpt {
+  margin: 0;
+  font-size: calc(var(--font-size-base) * 0.92);
+  color: var(--color-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.typeBadge {
+  padding: var(--spacing-xs) calc(var(--spacing-sm) * 0.75);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  background: var(--color-border-light);
+  color: var(--color-muted);
+}
+
+.tagBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--spacing-xs) calc(var(--spacing-sm) * 0.75);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.tagMore {
+  font-size: var(--font-size-xs);
+  color: var(--color-muted-light);
+  align-self: center;
+}
+
+.sourceJobicy {
+  background: var(--color-source-default-bg);
+  color: var(--color-source-default-text);
 }
 
 @media (max-width: 760px) {

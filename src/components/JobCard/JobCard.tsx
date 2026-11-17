@@ -1,43 +1,23 @@
-﻿import { Wrapper } from '@/components/ui/Wrapper/Wrapper';
-import * as Avatar from '@radix-ui/react-avatar';
+﻿import * as Avatar from '@radix-ui/react-avatar';
 import * as Separator from '@radix-ui/react-separator';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Briefcase, ExternalLink, MapPin, Sparkles } from 'lucide-react';
-import styles from './JobCard.module.scss';
+import { Briefcase, ExternalLink, GraduationCap, MapPin, Sparkles, Tag } from 'lucide-react';
 
-export interface Job {
-  id: string;
-  title: string;
-  company: string;
-  salary: string | null;
-  url: string;
-  source: string;
-  publishedAt: string;
-  isRemote: boolean;
-  aiScore: number | null;
-  aiSummary: string | null;
-}
+import type { Job } from '@/api/types';
+import { getCompanyInitials } from '@/lib/utils/getCompanyInitials';
+import { Flex } from '@radix-ui/themes';
+import styles from './JobCard.module.scss';
 
 interface JobCardProps {
   job: Job;
 }
 
-function getCompanyInitials(name: string): string {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? '')
-    .join('');
-}
-
 function getSourceColor(source: string): string {
   const colors: Record<string, string> = {
-    hh: styles.sourceHh,
+    jobicy: styles.sourceJobicy,
     remoteok: styles.sourceRemoteok,
-    linkedin: styles.sourceLinkedin,
-    test: styles.sourceTest,
   };
   return colors[source] ?? styles.sourceDefault;
 }
@@ -52,24 +32,22 @@ export function JobCard({ job }: JobCardProps) {
   const publishedDate = new Date(job.publishedAt);
   const timeAgo = formatDistanceToNow(publishedDate, { addSuffix: true, locale: ru });
   const initials = getCompanyInitials(job.company);
+  const avatarSrc =
+    job.companyLogo ??
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(job.company)}&background=2563eb&color=fff&size=128`;
+
+  const visibleTags = job.tags.slice(0, 4);
 
   return (
     <Tooltip.Provider delayDuration={200}>
       <div className={styles.card}>
-        <Wrapper gap="lg" className={styles.mainInfo}>
-          {/* Аватар компании */}
+        <Flex gap="var(--spacing-lg)" className={styles.mainInfo}>
           <Avatar.Root className={styles.avatar}>
-            <Avatar.Image
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(job.company)}&background=2563eb&color=fff&size=128`}
-              alt={job.company}
-              className={styles.avatarImage}
-            />
+            <Avatar.Image src={avatarSrc} alt={job.company} className={styles.avatarImage} />
             <Avatar.Fallback className={styles.avatarFallback}>{initials}</Avatar.Fallback>
           </Avatar.Root>
 
-          {/* Основная информация */}
-          <Wrapper direction="column" gap="sm" className={styles.content}>
-            {/* Заголовок */}
+          <Flex direction="column" gap="var(--spacing-sm)" className={styles.content}>
             <a
               href={job.url}
               target="_blank"
@@ -80,21 +58,42 @@ export function JobCard({ job }: JobCardProps) {
               <ExternalLink size={16} className={styles.externalIcon} />
             </a>
 
-            {/* Мета-информация */}
-            <Wrapper align="center" gap="sm" wrap className={styles.metaRow}>
+            <Flex align="center" gap="var(--spacing-sm)" wrap="wrap" className={styles.metaRow}>
               <span className={styles.company}>{job.company}</span>
               <Separator.Root orientation="vertical" className={styles.separator} />
-              <Wrapper align="center" gap="xs" className={styles.timeAgo}>
+
+              {job.location && (
+                <>
+                  <Flex align="center" gap="var(--spacing-xs)" className={styles.location}>
+                    <MapPin size={14} />
+                    <span>{job.location}</span>
+                  </Flex>
+                  <Separator.Root orientation="vertical" className={styles.separator} />
+                </>
+              )}
+
+              <Flex align="center" gap="var(--spacing-xs)" className={styles.timeAgo}>
                 <Briefcase size={14} />
                 <span>{timeAgo}</span>
-              </Wrapper>
+              </Flex>
+
+              {job.level && (
+                <>
+                  <Separator.Root orientation="vertical" className={styles.separator} />
+                  <Flex align="center" gap="var(--spacing-xs)" className={styles.level}>
+                    <GraduationCap size={14} />
+                    <span>{job.level}</span>
+                  </Flex>
+                </>
+              )}
+
               {job.isRemote && (
                 <Tooltip.Root>
                   <Tooltip.Trigger asChild>
-                    <Wrapper align="center" gap="xs" className={styles.badge}>
+                    <Flex align="center" gap="var(--spacing-xs)" className={styles.badge}>
                       <MapPin size={12} />
                       <span>Удалёнка</span>
-                    </Wrapper>
+                    </Flex>
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
                     <Tooltip.Content className={styles.tooltip} sideOffset={5}>
@@ -104,32 +103,50 @@ export function JobCard({ job }: JobCardProps) {
                   </Tooltip.Portal>
                 </Tooltip.Root>
               )}
-            </Wrapper>
+            </Flex>
 
-            {/* AI Summary */}
+            {job.excerpt && <p className={styles.excerpt}>{job.excerpt}</p>}
+
             {job.aiSummary && (
-              <Wrapper align="flex-start" gap="xs" className={styles.aiSummary}>
+              <Flex align="start" gap="var(--spacing-xs)" className={styles.aiSummary}>
                 <Sparkles size={14} className={styles.sparkleIcon} />
                 <span>{job.aiSummary}</span>
-              </Wrapper>
+              </Flex>
             )}
 
-            {/* Теги */}
-            <Wrapper gap="sm" wrap className={styles.tags}>
+            <Flex gap="var(--spacing-sm)" wrap="wrap" className={styles.tags}>
               <span className={`${styles.sourceBadge} ${getSourceColor(job.source)}`}>
                 {job.source.toUpperCase()}
               </span>
+
+              {job.jobTypes.map((t) => (
+                <span key={t} className={styles.typeBadge}>
+                  {t}
+                </span>
+              ))}
+
+              {Array.from(new Set(visibleTags)).map((tag) => (
+                <span key={tag} className={styles.tagBadge}>
+                  <Tag size={10} />
+                  {tag}
+                </span>
+              ))}
+
+              {job.tags.length > visibleTags.length && (
+                <span className={styles.tagMore}>+{job.tags.length - visibleTags.length}</span>
+              )}
+
               {job.aiScore !== null && (
                 <Tooltip.Root>
                   <Tooltip.Trigger asChild>
-                    <Wrapper
+                    <Flex
                       align="center"
-                      gap="xs"
+                      gap="var(--spacing-xs)"
                       className={`${styles.scoreBadge} ${getScoreColor(job.aiScore)}`}
                     >
                       <Sparkles size={12} />
                       <span>AI: {job.aiScore}/100</span>
-                    </Wrapper>
+                    </Flex>
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
                     <Tooltip.Content className={styles.tooltip} sideOffset={5}>
@@ -139,16 +156,20 @@ export function JobCard({ job }: JobCardProps) {
                   </Tooltip.Portal>
                 </Tooltip.Root>
               )}
-            </Wrapper>
-          </Wrapper>
-        </Wrapper>
+            </Flex>
+          </Flex>
+        </Flex>
 
-        {/* Зарплата */}
         {job.salary && (
-          <Wrapper direction="column" align="flex-end" gap="xs" className={styles.salaryBlock}>
+          <Flex
+            direction="column"
+            align="end"
+            gap="var(--spacing-xs)"
+            className={styles.salaryBlock}
+          >
             <span className={styles.salaryLabel}>Зарплата</span>
             <span className={styles.salary}>{job.salary}</span>
-          </Wrapper>
+          </Flex>
         )}
       </div>
     </Tooltip.Provider>

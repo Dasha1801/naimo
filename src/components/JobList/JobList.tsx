@@ -1,49 +1,31 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-
-import { JobCard, type Job } from '@/components/JobCard/JobCard';
+import { useJobs } from '@/api/hooks/use-jobs';
+import { JobSource } from '@/api/types';
 import { QueryState } from '@/components/ui/QueryState/QueryState';
-import { Wrapper } from '@/components/ui/Wrapper/Wrapper';
+import { filterJobs } from '@/lib/utils/filterJobs';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import { Flex } from '@radix-ui/themes';
+import { JobCard } from '../JobCard/JobCard';
 
 interface JobListProps {
-  onSync?: () => void;
-  syncing?: boolean;
+  source: JobSource;
   search?: string;
 }
 
-async function fetchJobs(): Promise<Job[]> {
-  const response = await fetch('/api/jobs');
-  const data = await response.json();
-
-  if (!response.ok || !data.success) {
-    throw new Error(data.error || 'Не удалось загрузить вакансии');
-  }
-
-  return data.data;
-}
-
-export function JobList({ onSync, syncing = false, search = '' }: JobListProps) {
-  const {
-    data: jobs,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ['jobs'],
-    queryFn: fetchJobs,
-  });
+export function JobList({ source, search = '' }: JobListProps) {
+  const { data: jobs, isLoading, isError, refetch } = useJobs(source);
 
   if (isLoading) {
     return <QueryState type="loading" />;
   }
 
-  if (error) {
+  if (isError) {
     return (
       <QueryState
         type="error"
         title="Не удалось загрузить вакансии"
-        description={error.message}
+        description="Проверьте подключение к интернету или попробуйте позже."
         action={{
           label: 'Попробовать снова',
           onClick: () => refetch(),
@@ -57,26 +39,14 @@ export function JobList({ onSync, syncing = false, search = '' }: JobListProps) 
       <QueryState
         type="empty"
         title="Пока нет вакансий"
-        description="Здесь появятся актуальные предложения от работодателей. Синхронизируйте вакансии, чтобы начать поиск."
-        action={
-          onSync
-            ? {
-                label: 'Загрузить вакансии',
-                onClick: onSync,
-                loading: syncing,
-              }
-            : undefined
-        }
+        description="Здесь появятся актуальные предложения от работодателей."
       />
     );
   }
 
-  const term = search.trim().toLowerCase();
-  const filteredJobs = term
-    ? jobs.filter((job) => JSON.stringify(job).toLowerCase().includes(term))
-    : jobs;
+  const filtered = filterJobs(jobs, search);
 
-  if (!filteredJobs.length) {
+  if (!filtered.length) {
     return (
       <QueryState
         type="empty"
@@ -87,10 +57,12 @@ export function JobList({ onSync, syncing = false, search = '' }: JobListProps) 
   }
 
   return (
-    <Wrapper direction="column" gap="md">
-      {filteredJobs.map((job) => (
-        <JobCard key={job.id} job={job} />
-      ))}
-    </Wrapper>
+    <Tooltip.Provider delayDuration={200}>
+      <Flex direction="column" gap="3">
+        {filtered.map((job) => (
+          <JobCard key={job.id} job={job} />
+        ))}
+      </Flex>
+    </Tooltip.Provider>
   );
 }
