@@ -1,19 +1,20 @@
 'use client';
 
 import * as Toast from '@radix-ui/react-toast';
-import { TextField } from '@radix-ui/themes';
+import { TabNav, TextField } from '@radix-ui/themes';
 import clsx from 'clsx';
 import { RefreshCw, Search, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { JobList } from '@/components/JobList/JobList';
-
 import { Wrapper } from '@/components/ui/Wrapper/Wrapper';
+
 import styles from './page.module.scss';
 
 export default function Home() {
   const [syncing, setSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
   const [toast, setToast] = useState({
     open: false,
     title: '',
@@ -64,6 +65,13 @@ export default function Home() {
     <Toast.Provider swipeDirection="right">
       <main className={styles.home}>
         <section>
+          <TabNav.Root size="2" className={styles.tabNav}>
+            <TabNav.Link href="/" active>
+              Jobicy
+            </TabNav.Link>
+            <TabNav.Link href="/remoteok">RemoteOK</TabNav.Link>
+          </TabNav.Root>
+
           <form onSubmit={handleSearchSubmit} role="search" className={styles.searchForm}>
             <TextField.Root
               size="3"
@@ -92,6 +100,7 @@ export default function Home() {
               )}
             </TextField.Root>
           </form>
+
           <Wrapper gap="md" justify="space-between" align="center" className={styles.header}>
             <h2 className={styles.heading}>Актуальные вакансии</h2>
 
