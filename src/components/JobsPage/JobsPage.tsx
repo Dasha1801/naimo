@@ -1,13 +1,14 @@
 'use client';
 
-import { TabNav, TextField } from '@radix-ui/themes';
+import { Flex, IconButton, TabNav, TextField } from '@radix-ui/themes';
 import { Search, X } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import { JobList } from '@/components/JobList/JobList';
 
 import type { JobSource } from '@/api/types';
+import { useSearchQuery } from '@/lib/hooks/useSearchQuery';
 import styles from './JobsPage.module.scss';
 
 interface JobsPageProps {
@@ -16,57 +17,65 @@ interface JobsPageProps {
 
 export function JobsPage({ source }: JobsPageProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const { query: urlQuery, setQuery: setUrlQuery } = useSearchQuery('tag');
+  const [inputValue, setInputValue] = useState(urlQuery);
 
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleClearSearch = () => {
+    setInputValue('');
+    setUrlQuery('');
   };
 
-  const handleClearSearch = () => setSearchQuery('');
+  const handleSearch = () => setUrlQuery(inputValue);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') handleSearch();
+  };
+
+  const queryString = searchParams.toString();
+  const suffix = queryString ? `?${queryString}` : '';
 
   return (
     <main className={styles.jobsPage}>
       <section>
         <TabNav.Root size="2" className={styles.tabNav}>
-          <TabNav.Link href="/" active={pathname === '/'}>
+          <TabNav.Link href={`/${suffix}`} active={pathname === '/'}>
             Jobicy
           </TabNav.Link>
-          <TabNav.Link href="/remoteok" active={pathname === '/remoteok'}>
+          <TabNav.Link href={`/remoteok${suffix}`} active={pathname === '/remoteok'}>
             RemoteOK
           </TabNav.Link>
         </TabNav.Root>
 
-        <form onSubmit={handleSearchSubmit} role="search" className={styles.searchForm}>
+        <Flex role="search" className={styles.searchForm}>
           <TextField.Root
             size="3"
             type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
+            value={inputValue}
+            onChange={(event) => setInputValue(event.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Например: React, Python, дизайнер…"
-            className={styles.searchField}
             aria-label="Поиск вакансий"
           >
-            <TextField.Slot side="left">
-              <Search size={22} aria-hidden="true" />
-            </TextField.Slot>
-
-            {searchQuery && (
+            {inputValue && (
               <TextField.Slot side="right">
-                <button
-                  type="button"
-                  className={styles.searchClear}
-                  onClick={handleClearSearch}
-                  aria-label="Очистить поиск"
-                >
-                  <X size={16} />
-                </button>
+                <IconButton size="2" variant="ghost" onClick={handleClearSearch}>
+                  <X size={18} />
+                </IconButton>
+              </TextField.Slot>
+            )}
+            {inputValue && (
+              <TextField.Slot side="right">
+                <IconButton size="2" variant="ghost" onClick={handleSearch}>
+                  <Search size={18} aria-hidden="true" />
+                </IconButton>
               </TextField.Slot>
             )}
           </TextField.Root>
-        </form>
+        </Flex>
 
-        <JobList source={source} search={searchQuery} />
+        <JobList source={source} />
       </section>
     </main>
   );

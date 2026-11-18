@@ -12,6 +12,11 @@
 
 .searchForm {
   margin-bottom: var(--spacing-lg);
+  width: 100%;
+
+  :global(.rt-TextFieldRoot) {
+    width: 100%;
+  }
 }
 
 @media (max-width: 600px) {

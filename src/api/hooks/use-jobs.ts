@@ -1,29 +1,33 @@
 import { useQuery } from '@tanstack/react-query';
 import { adaptJobicyJob } from '../adapters/jobicy';
 import { adaptRemoteOkResponse } from '../adapters/remoteok';
-import { fetchJobicyJobs } from '../clients/jobicy';
-import { fetchRemoteOkJobs } from '../clients/remoteok';
-import type { Job } from '../types';
+import { Job, JobSource } from '../types';
 
-type JobSource = 'jobicy' | 'remoteok';
-
-export function useJobs(source: JobSource) {
+export function useJobs(source: JobSource, tag: string = '') {
   return useQuery<Job[]>({
-    queryKey: ['jobs', source],
+    queryKey: ['jobs', source, tag],
+
     queryFn: async () => {
       if (source === 'jobicy') {
-        const data = await fetchJobicyJobs();
-        return data.jobs.map(adaptJobicyJob);
+        const url = new URL('https://jobicy.com/api/jobs');
+        url.searchParams.set('count', '20');
+        if (tag) url.searchParams.set('tag', tag);
+        const res = await fetch(url.toString());
+        if (!res.ok) throw new Error('Ошибка Jobicy');
+        return (await res.json()).jobs.map(adaptJobicyJob);
       }
 
       if (source === 'remoteok') {
-        const data = await fetchRemoteOkJobs();
+        const url = new URL('https://remoteok.com/api');
+        if (tag) url.searchParams.set('tags', tag);
+        const res = await fetch(url.toString());
+        if (!res.ok) throw new Error('Ошибка RemoteOK');
+        const data = await res.json();
         return adaptRemoteOkResponse(data);
       }
 
       return [];
     },
-    // Данные можно считать свежими 5 минут, чтобы не спамить API при переключении вкладок
-    staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData) => previousData,
   });
 }
