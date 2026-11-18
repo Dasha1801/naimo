@@ -43,7 +43,12 @@ export function JobCard({ job }: JobCardProps) {
       <div className={styles.card}>
         <Flex gap="var(--spacing-lg)" className={styles.mainInfo}>
           <Avatar.Root className={styles.avatar}>
-            <Avatar.Image src={avatarSrc} alt={job.company} className={styles.avatarImage} />
+            <Avatar.Image
+              src={avatarSrc}
+              alt={job.company}
+              className={styles.avatarImage}
+              loading="lazy"
+            />
             <Avatar.Fallback className={styles.avatarFallback}>{initials}</Avatar.Fallback>
           </Avatar.Root>
 

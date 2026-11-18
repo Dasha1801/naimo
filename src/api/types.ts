@@ -44,6 +44,7 @@ export interface JobicyRawJob {
 
 export interface JobicyResponse {
   jobs: JobicyRawJob[];
+  hasMore: boolean;
 }
 
 // ---- сырые типы RemoteOK ----
@@ -62,3 +63,8 @@ export interface RemoteOkRawJob {
   salary_max?: number;
   legal?: string;
 }
+
+export type JobsData = {
+  hasMore: boolean;
+  jobs: Job[];
+};

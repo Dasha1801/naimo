@@ -6,7 +6,7 @@ import { QueryState } from '@/components/ui/QueryState/QueryState';
 import { useSearchQuery } from '@/lib/hooks/useSearchQuery';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { Button, Flex } from '@radix-ui/themes';
-import { ChevronDown } from 'lucide-react';
+import { ArrowDown, ArrowUp } from 'lucide-react';
 import { JobCard } from '../JobCard/JobCard';
 
 interface JobListProps {
@@ -15,7 +15,7 @@ interface JobListProps {
 
 export function JobList({ source }: JobListProps) {
   const { params, setParams } = useSearchQuery();
-  const { data: jobs, isLoading, isError, refetch } = useJobs(source, params);
+  const { data, isLoading, isError, refetch, isFetching } = useJobs(source, params);
   const count = Number(params.count) || 20;
   if (isLoading) {
     return <QueryState type="loading" />;
@@ -35,7 +35,7 @@ export function JobList({ source }: JobListProps) {
     );
   }
 
-  if (!jobs?.length) {
+  if (!data?.jobs.length) {
     return (
       <QueryState
         type="empty"
@@ -45,27 +45,37 @@ export function JobList({ source }: JobListProps) {
     );
   }
 
-  const hasMore = source === 'jobicy' && jobs.length >= count;
-
   const handleShowMore = () => setParams({ count: count + 20 });
+  const handleCollapse = () => {
+    setParams({ count: null });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <>
       <Tooltip.Provider delayDuration={200}>
         <Flex direction="column" gap="3">
-          {jobs?.map((job) => (
+          {data?.jobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
+          {isFetching && <QueryState type="loading" />}
         </Flex>
       </Tooltip.Provider>
-      {hasMore && (
-        <Flex justify="end" mt="6">
-          <Button size="3" variant="soft" onClick={handleShowMore} disabled={isLoading}>
-            Показать ещё
-            <ChevronDown size={16} />
+
+      <Flex justify="end" mt="6" gap="var(--space-3)">
+        {count !== 20 && (
+          <Button size="3" variant="soft" onClick={handleCollapse} disabled={isFetching}>
+            Свернуть
+            <ArrowUp size={16} />
           </Button>
-        </Flex>
-      )}
+        )}
+        {data.hasMore && (
+          <Button size="3" variant="soft" onClick={handleShowMore} disabled={isFetching}>
+            Показать ещё
+            <ArrowDown size={16} />
+          </Button>
+        )}
+      </Flex>
     </>
   );
 }

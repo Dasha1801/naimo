@@ -2,15 +2,15 @@
 
 import { Flex, IconButton, TabNav, TextField } from '@radix-ui/themes';
 import { Search, X } from 'lucide-react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 import { JobList } from '@/components/JobList/JobList';
 
 import type { JobSource } from '@/api/types';
 import { useSearchQuery } from '@/lib/hooks/useSearchQuery';
-import styles from './JobsPage.module.scss';
 import { ScrollToTop } from '../ScrollToTop/ScrollToTop';
+import styles from './JobsPage.module.scss';
 
 interface JobsPageProps {
   source: JobSource;
@@ -18,7 +18,6 @@ interface JobsPageProps {
 
 export function JobsPage({ source }: JobsPageProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const { params, setParams } = useSearchQuery();
   const [inputValue, setInputValue] = useState(params.tag || '');
@@ -34,7 +33,7 @@ export function JobsPage({ source }: JobsPageProps) {
     if (event.key === 'Enter') handleSearch();
   };
 
-  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : '';
+  const suffix = params.tag ? `?tag=${encodeURIComponent(params.tag)}` : '';
 
   return (
     <main className={styles.jobsPage}>
