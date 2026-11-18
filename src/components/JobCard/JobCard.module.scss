@@ -7,14 +7,12 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   transition:
-    box-shadow var(--transition-normal),
     transform var(--transition-normal),
     border-color var(--transition-normal);
 
   &:hover {
     border-color: var(--color-primary);
-    box-shadow: var(--shadow-primary);
-    transform: translateY(-2px);
+    transform: translateY(1px);
   }
 }
 

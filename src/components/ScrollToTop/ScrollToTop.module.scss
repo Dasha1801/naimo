@@ -1,0 +1,25 @@
+.scrollTop {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 50;
+  border-radius: 50%;
+  box-shadow: var(--shadow-md);
+  animation: fadeIn var(--transition-normal) ease-out;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-primary-lighter);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
