@@ -47,14 +47,19 @@ export function JobHeader() {
         >
           {inputValue && (
             <TextField.Slot side="right">
-              <IconButton size="2" variant="ghost" onClick={handleClearSearch}>
+              <IconButton
+                size="2"
+                variant="ghost"
+                onClick={handleClearSearch}
+                aria-label="Очистить поиск"
+              >
                 <X size={18} />
               </IconButton>
             </TextField.Slot>
           )}
           {inputValue && (
             <TextField.Slot side="right">
-              <IconButton size="2" variant="ghost" onClick={handleSearch}>
+              <IconButton size="2" variant="ghost" onClick={handleSearch} aria-label="Найти">
                 <Search size={18} aria-hidden="true" />
               </IconButton>
             </TextField.Slot>
