@@ -1,11 +1,80 @@
 :root {
-  --color-bg: #ffffff;
-  --color-text: #0f172a;
+  /* === ЦВЕТА === */
   --color-primary: #2563eb;
   --color-primary-hover: #1d4ed8;
+  --color-primary-light: #dbeafe;
+  --color-primary-lighter: #bfdbfe;
+
+  --color-success: #16a34a;
+  --color-success-bg: #dcfce7;
+  --color-success-text: #166534;
+
+  --color-warning: #d97706;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #92400e;
+
+  --color-error: #dc2626;
+  --color-error-bg: #fee2e2;
+  --color-error-text: #991b1b;
+
+  --color-info: #0ea5e9;
+  --color-info-bg: #f0f9ff;
+  --color-info-text: #1e40af;
+
+  --color-text: #1e293b;
+  --color-text-secondary: #475569;
   --color-muted: #64748b;
-  --radius-md: 8px;
+  --color-muted-light: #94a3b8;
+
+  --color-border: #e2e8f0;
+  --color-border-light: #f1f5f9;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+
+  /* Цвета источников */
+  --color-source-remoteok-bg: #dcfce7;
+  --color-source-remoteok-text: #166534;
+  --color-source-default-bg: #f1f5f9;
+  --color-source-default-text: #475569;
+
+  /* === РАЗМЕРЫ === */
   --spacing-unit: 8px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  /* === РАДИУСЫ === */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* === ТЕНИ === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  --shadow-primary: 0 4px 16px rgba(37, 99, 235, 0.12);
+
+  /* === ПЕРЕХОДЫ === */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* === ШРИФТЫ === */
+  --font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size-xs: 0.6875rem;
+  --font-size-sm: 0.75rem;
+  --font-size-base: 0.875rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.125rem;
+  --font-size-2xl: 1.25rem;
+  --font-size-3xl: 1.5rem;
 }
 
 * {
@@ -15,12 +84,19 @@
 }
 
 body {
-  background-color: var(--color-bg);
+  font-family: var(--font-family);
+  background: var(--color-background);
   color: var(--color-text);
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
 }

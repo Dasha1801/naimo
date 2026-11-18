@@ -1,73 +1,81 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useJobs } from '@/api/hooks/use-jobs';
+import { JobSource } from '@/api/types';
+import { QueryState } from '@/components/ui/QueryState/QueryState';
+import { useSearchQuery } from '@/lib/hooks/useSearchQuery';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import { Button, Flex } from '@radix-ui/themes';
+import { ArrowDown, ArrowUp } from 'lucide-react';
 import { JobCard } from '../JobCard/JobCard';
 
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  salary: string | null;
-  url: string;
-  source: string;
-  publishedAt: string;
-  isRemote: boolean;
-  aiScore: number | null;
-  aiSummary: string | null;
+interface JobListProps {
+  source: JobSource;
 }
 
-async function fetchJobs(): Promise<Job[]> {
-  const response = await fetch('/api/jobs');
-  const data = await response.json();
-
-  if (!data.success) {
-    throw new Error(data.error || 'Failed to fetch jobs');
-  }
-
-  return data.data;
-}
-
-export function JobList() {
-  const {
-    data: jobs,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['jobs'],
-    queryFn: fetchJobs,
-  });
-
+export function JobList({ source }: JobListProps) {
+  const { params, setParams } = useSearchQuery();
+  const { data, isLoading, isError, refetch, isFetching } = useJobs(source, params);
+  const count = Number(params.count) || 20;
   if (isLoading) {
-    return <div style={{ textAlign: 'center', padding: '2rem' }}>Загрузка вакансий...</div>;
+    return <QueryState type="loading" />;
   }
 
-  if (error) {
+  if (isError) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
-        Ошибка: {error.message}
-      </div>
+      <QueryState
+        type="error"
+        title="Не удалось загрузить вакансии"
+        description="Проверьте подключение к интернету или попробуйте позже."
+        action={{
+          label: 'Попробовать снова',
+          onClick: () => refetch(),
+        }}
+      />
     );
   }
 
-  if (!jobs || jobs.length === 0) {
+  if (!data?.jobs.length) {
     return (
-      <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-muted)' }}>
-        Вакансий пока нет. Нажмите "Синхронизировать" для загрузки данных.
-      </div>
+      <QueryState
+        type="empty"
+        title="Пока нет вакансий"
+        description="Здесь появятся актуальные предложения от работодателей."
+      />
     );
   }
+
+  const handleShowMore = () => setParams({ count: count + 20 });
+  const handleCollapse = () => {
+    setParams({ count: null });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {jobs.map((job) => (
-        <JobCard
-          key={job.id}
-          title={job.title}
-          company={job.company}
-          salary={job.salary || undefined}
-          remote={job.isRemote}
-        />
-      ))}
-    </div>
+    <>
+      <Tooltip.Provider delayDuration={200}>
+        <Flex direction="column" gap="3">
+          {data?.jobs.map((job) => (
+            <JobCard key={job.id} job={job} />
+          ))}
+          {isFetching && <QueryState type="loading" />}
+        </Flex>
+      </Tooltip.Provider>
+
+      <Flex justify="end" mt="6" gap="var(--space-3)">
+        {count !== 20 && (
+          <Button size="3" variant="soft" onClick={handleCollapse} disabled={isFetching}>
+            Свернуть
+            <ArrowUp size={16} />
+          </Button>
+        )}
+        {data.hasMore && (
+          <Button size="3" variant="soft" onClick={handleShowMore} disabled={isFetching}>
+            Показать ещё
+            <ArrowDown size={16} />
+          </Button>
+        )}
+      </Flex>
+    </>
   );
 }
