@@ -19,22 +19,21 @@ export function JobsPage({ source }: JobsPageProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const { query: urlQuery, setQuery: setUrlQuery } = useSearchQuery('tag');
-  const [inputValue, setInputValue] = useState(urlQuery);
+  const { params, setParams } = useSearchQuery();
+  const [inputValue, setInputValue] = useState(params.tag || '');
 
   const handleClearSearch = () => {
     setInputValue('');
-    setUrlQuery('');
+    setParams({ tag: null, count: null });
   };
 
-  const handleSearch = () => setUrlQuery(inputValue);
+  const handleSearch = () => setParams({ tag: inputValue, count: null });
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') handleSearch();
   };
 
-  const queryString = searchParams.toString();
-  const suffix = queryString ? `?${queryString}` : '';
+  const suffix = searchParams.toString() ? `?${searchParams.toString()}` : '';
 
   return (
     <main className={styles.jobsPage}>
